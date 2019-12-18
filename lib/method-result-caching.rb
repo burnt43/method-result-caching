@@ -1,6 +1,17 @@
-module Kernel
-  def cache_result(&block)
-    method_name = caller_locations.first.label
+class Object
+  class << self
+    def cache_result_for(method_name)
+      new_method_name = "uncached_original_#{method_name}".to_sym
+      alias_method(new_method_name, method_name)
+
+      define_method method_name do
+        cache_result(method_name: method_name) { send(new_method_name) }
+      end
+    end
+  end
+
+  def cache_result(method_name: nil, &block)
+    method_name ||= caller_locations.first.label
 
     instance_variable_name = "@#{method_name}".gsub('?', 'qmark').to_sym
 
