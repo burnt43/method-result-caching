@@ -13,6 +13,7 @@ class Object
   def cache_result(method_name: nil, &block)
     method_name ||= caller_locations.first.label
 
+    # REFACTOR: repeated code
     instance_variable_name = "@#{method_name}".gsub('?', 'qmark').to_sym
 
     if instance_variable_defined?(instance_variable_name)
@@ -20,5 +21,12 @@ class Object
     else
       instance_variable_set(instance_variable_name, (lambda &block).call)
     end
+  end
+
+  def clear_cached_result_for!(method_name)
+    # REFACTOR: repeated code
+    instance_variable_name = "@#{method_name}".gsub('?', 'qmark').to_sym
+
+    remove_instance_variable(instance_variable_name)
   end
 end
